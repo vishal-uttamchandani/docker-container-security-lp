@@ -1,0 +1,69 @@
+---
+    profile:
+      name: "Added Rules"
+      description: "Set of rules focus on security aspects of Dockerfiles"
+      
+    line_rules:
+        FROM: 
+            paramSyntaxRegex: /^[\w./\-:]+(:[\w.]+)?(-[\w]+)?$/
+            rules: 
+                - 
+                    label: "is_latest_tag"
+                    regex: /latest/
+                    level: "error"
+                    message: "base image uses 'latest' tag"
+                    description: "using the 'latest' tag may cause unpredictable builds. It is recommended that a specific tag is used in the FROM line or *-released which is the latest supported release."
+                    reference_url: 
+                        - "https://docs.docker.com/engine/reference/builder/"
+                        - "#from"
+
+        LABEL:
+            paramSyntaxRegex: /.+/
+            # Use defined_label_rules to defined a set of labels for your dockerfile
+            # In this example, the labels "Vendor","Authoritative_Registry","BZComponent"
+            # have been defined. A label value is 'valid' if matches the regular
+            # expression 'valueRegex', otherwise an warn is logged with the string "message"
+            # at level 'level'.  'reference_url' provides a web link where the user can
+            # get more information about the rule.
+            #
+            defined_namevals:
+                Maintainer:
+                    valueRegex: /[\w]+/
+                    message: "Label 'Maintainer' is missing or has invalid format"
+                    level: "error"
+                    required: true
+                    reference_url:
+                    - "http://docs.projectatomic.io/container-best-practices/#"
+                    - "_recommended_labels_for_your_project"
+
+        HEALTHCHECK:
+            paramSyntaxRegex: /.+/
+            rules:
+            -
+                label: "no_curl"
+                regex: /curl/
+                level: "warn"
+                message: "using curl tool for healthcheck is not recommended"
+                description: "curl tool increases image size, attack surface and is not platform agnostics"
+                reference_url:
+                    - "https://blog.sixeyed.com/docker-healthchecks-why-not-to-use-curl-or-iwr/"
+
+    required_instructions:
+        -
+            instruction: "HEALTHCHECK"
+            count: 1
+            level: "warn"
+            message: "No 'HEALTHCHECK' instruction in the file"
+            description: "The HEALTHCHECK instruction tells docker how to test a container to check that it is still working"
+            reference_url:
+            - "https://docs.docker.com/engine/reference/builder/#healthcheck"
+
+        -
+            instruction: "LABEL"
+            count: 1
+            level: "warn"
+            message: "No 'LABEL' instruction in the file"
+            description: "labels allow you to specify metadata for docker images"
+            reference_url:
+            - "https://docs.docker.com/develop/develop-images/dockerfile_best-practices/#label"
+            - "https://medium.com/@chamilad/lets-make-your-docker-image-better-than-90-of-existing-ones-8b1e5de950d"

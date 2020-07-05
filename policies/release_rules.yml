@@ -1,0 +1,7 @@
+---
+    profile:
+      name: "Release"
+      description: "security rules to be checked for dockerfile before building the image"
+      includes:
+        - security_rules.yml
+        - new_rules.yml

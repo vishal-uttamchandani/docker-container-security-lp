@@ -1,6 +1,8 @@
 FROM alpine:3.12.0
 
 LABEL maintainer="VU <vishal@gmail.com>"
+LABEL name="Vishal U"
+LABEL version="0.0.1"
 
 # hadolint ignore=DL3018
 RUN apk add --no-cache \
@@ -24,6 +26,8 @@ RUN curl -k -L \
 
 WORKDIR /src
 
+USER hugo
+
 EXPOSE 1313
 
-HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 CMD curl --head --fail localhost:1313 || exit 1
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 CMD ["/src/tools/healthcheck", "http://localhost:1313"]
